@@ -18,5 +18,6 @@ setup(
     author_email='hartror@gmail.com',
     url='https://github.com/hartror/pyramid-odic',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=["oic"]
 )
