@@ -10,7 +10,7 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='pyramid-oidc',
+    name='pyramid_oidc',
     version='0.0.0',
     description='',
     long_description=readme,
