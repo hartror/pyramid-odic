@@ -1,6 +1,6 @@
 import logging
 
-from oic.oic import Client
+from oic.utils.rp import Client
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 
 from pyramid_oidc.exceptions import MissingConfigurationException
