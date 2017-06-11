@@ -9,12 +9,20 @@ from pyramid_oidc.exceptions import MissingConfigurationException
 log = logging.getLogger(__name__)
 
 
+def include_me(config):
+    validate_config(config.registry.settings)
+
+    config.add_request_method(oidc_client, reify=True)
+
+
+def oidc_client(request):
+    return client_from_settings(request.registry.settings)
+
+
 def client_from_settings(settings):
     """
     Return a oic client from a configuration dictionary.
     """
-    validate_config(settings)
-
     client_id = settings['oidc.client_id']
     client_secret = settings['oidc.client_secret']
     provider_config_url = settings['oidc.provider_config_url']
