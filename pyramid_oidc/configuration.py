@@ -19,8 +19,10 @@ def client_from_settings(settings):
     client_secret = settings['oidc.client_secret']
     provider_config_url = settings['oidc.provider_config_url']
 
-    client = Client(client_id=client_id, client_authn_method=CLIENT_AUTHN_METHOD)
-    client.client_secret = client_secret
+    client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+    client.store_registration_info(
+        {'client_id': client_id,
+        'client_secret': client_secret})
 
     try:
         client.provider_config(provider_config_url)

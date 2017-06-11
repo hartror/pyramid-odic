@@ -16,7 +16,7 @@ SETTINGS = {
 @pytest.fixture
 def mock_client_cls(monkeypatch):
     client_cls = mock.Mock(spec=[])
-    client_cls.return_value = mock.Mock(spec=['client_secret', 'provider_config'])
+    client_cls.return_value = mock.Mock(spec=['store_registration_info', 'provider_config'])
     monkeypatch.setattr('pyramid_oidc.configuration.Client', client_cls)
     return client_cls
 
