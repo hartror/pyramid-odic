@@ -16,21 +16,20 @@ def include_me(config):
 
 
 def oidc_client(request):
-    return client_from_settings(request.registry.settings)
-
-
-def client_from_settings(settings):
     """
     Return a oic client from a configuration dictionary.
     """
+    settings = request.registry.settings
+
     client_id = settings['oidc.client_id']
     client_secret = settings['oidc.client_secret']
     provider_config_url = settings['oidc.provider_config_url']
 
     client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
-    client.store_registration_info(
-        {'client_id': client_id,
-        'client_secret': client_secret})
+    client.store_registration_info({
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uris': [request.route_url('oidc_authn')] })
 
     try:
         client.provider_config(provider_config_url)

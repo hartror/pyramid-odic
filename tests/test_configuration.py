@@ -2,7 +2,7 @@ import mock
 import pytest
 
 from pyramid_oidc.configuration import (
-    client_from_settings,
+    oidc_client,
     validate_config)
 from pyramid_oidc.exceptions import MissingConfigurationException
 
@@ -14,6 +14,13 @@ SETTINGS = {
 
 
 @pytest.fixture
+def mock_request():
+    request = mock.Mock(spec=['registry', 'route_url'])
+    request.registry.settings = SETTINGS
+    return request
+
+
+@pytest.fixture
 def mock_client_cls(monkeypatch):
     client_cls = mock.Mock(spec=[])
     client_cls.return_value = mock.Mock(spec=['store_registration_info', 'provider_config'])
@@ -21,21 +28,20 @@ def mock_client_cls(monkeypatch):
     return client_cls
 
 
-def test_client_from_settings(mock_client_cls):
-    client = client_from_settings(SETTINGS)
+def test_oidc_client(mock_request, mock_client_cls):
+    client = oidc_client(mock_request)
 
     assert client == mock_client_cls.return_value
 
 
-def test_dead_provider(mock_client_cls):
+def test_dead_provider(mock_request, mock_client_cls):
     exc = Exception('Tis but a scratch')
     mock_client_cls.return_value.provider_config.side_effect = exc
 
     with pytest.raises(Exception) as excinfo:
-        client = client_from_settings(SETTINGS)
+        client = oidc_client(mock_request)
 
     assert excinfo.value == exc
-
 
 
 def test_valid_config():
