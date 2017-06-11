@@ -27,3 +27,13 @@ def oidc_authn(request):
             .format(', '.join(missing_qp)))
         log.warn(msg)
         return HTTPBadRequest(detail=msg)
+
+    try:
+        state = request.GET.getone('state')
+        code = request.GET.getone('code')
+    except KeyError as exc:
+        msg = (
+            "Multiple query params {} in request."
+            .format(request.GET))
+        log.warn(msg)
+        return HTTPBadRequest(detail=msg)
