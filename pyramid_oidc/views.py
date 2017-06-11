@@ -19,7 +19,7 @@ def oidc_authn(request):
     """
     missing_qp = [
         q
-        for q in ('state', 'nonce')
+        for q in ('state', 'code')
         if q not in request.GET]
     if missing_qp:
         msg = (
