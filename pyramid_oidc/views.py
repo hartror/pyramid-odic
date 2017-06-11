@@ -17,23 +17,12 @@ def oidc_authn(request):
 
     This is configured as the OIDC client redirect_uri.
     """
-    missing_qp = [
-        q
-        for q in ('state', 'code')
-        if q not in request.GET]
-    if missing_qp:
-        msg = (
-            "Query params {} missing from request."
-            .format(', '.join(missing_qp)))
-        log.warn(msg)
-        return HTTPBadRequest(detail=msg)
-
     try:
         state = request.GET.getone('state')
         code = request.GET.getone('code')
     except KeyError as exc:
         msg = (
-            "Multiple query params {} in request."
+            "Bad or missing query params {} in request."
             .format(request.GET))
         log.warn(msg)
         return HTTPBadRequest(detail=msg)
