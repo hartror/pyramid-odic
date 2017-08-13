@@ -1,51 +1,44 @@
 import logging
+import os
 
-from oic.utils.rp import Client
-from oic.utils.authn.client import CLIENT_AUTHN_METHOD
-
-from pyramid_oidc.exceptions import MissingConfigurationException
-
+from pyramid_oidc.exceptions import MissingConfiguration
 
 log = logging.getLogger(__name__)
 
 
-def include_me(config):
+# Development mode no SSL
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+
+CONFIG_CLIENT_ID = 'oidc.client_id'
+CONFIG_CLIENT_SECRET = 'oidc.client_secret'
+CONFIG_OP_AUTHZ_URI = 'oidc.op_authz_uri'
+CONFIG_OP_TOKEN_URI = 'oidc.op_token_uri'
+CONFIG_OP_PUBLIC_KEY = 'oidc.op_public_key'
+CONFIG_OP_USERINFO_URI = 'oidc.op_userinfo_uri'
+
+REQUIRED_CONFIG = (
+    CONFIG_CLIENT_ID,
+    CONFIG_CLIENT_SECRET,
+    CONFIG_OP_AUTHZ_URI,
+    CONFIG_OP_PUBLIC_KEY,
+    CONFIG_OP_TOKEN_URI,
+    CONFIG_OP_USERINFO_URI)
+
+
+def includeme(config):
     validate_config(config.registry.settings)
 
-    config.add_request_method(oidc_client, reify=True)
+    config.add_route('oidc_authn', '/oidc_authn')
+    config.add_route('oidc_callback', '/oidc_callback')
 
-
-def oidc_client(request):
-    """
-    Return a oic client from a configuration dictionary.
-    """
-    settings = request.registry.settings
-
-    client_id = settings['oidc.client_id']
-    client_secret = settings['oidc.client_secret']
-    provider_config_url = settings['oidc.provider_config_url']
-
-    client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
-    client.store_registration_info({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uris': [request.route_url('oidc_authn')] })
-
-    try:
-        client.provider_config(provider_config_url)
-    except Exception as exc:
-        log.error(
-            "Unable to load config from the provider at '{}'"
-            .format(provider_config_url))
-        raise
-
-    return client
+    config.scan('pyramid_oidc.views')
 
 
 def validate_config(settings):
     missing_options = [
         option
-        for option in ('oidc.provider_config_url', 'oidc.client_id', 'oidc.client_secret')
+        for option in REQUIRED_CONFIG
         if option not in settings]
     if missing_options:
-        raise MissingConfigurationException(missing_options)
+        raise MissingConfiguration(missing_options)
